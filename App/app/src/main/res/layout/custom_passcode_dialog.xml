@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/surface_dark"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:textColor="@color/text_primary"
+        android:gravity="center"
+        android:text="@string/matter_connection_input_dialog_title"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/dialog_instructions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary"
+        android:gravity="center"
+        android:text="@string/matter_connection_input_dialog_instructions"
+        android:layout_marginBottom="20dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="配对码"
+        app:hintTextColor="@color/cyan_accent"
+        app:boxBackgroundColor="@color/background_dark"
+        app:boxStrokeColor="@color/cyan_accent"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/passcode_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_hint"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:inputType="number"
+            android:letterSpacing="0.2" />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>

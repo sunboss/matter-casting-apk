@@ -1,0 +1,112 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Read the size optimization flag passed from the build system.
+// When true, enables R8 shrinking and allows .so stripping in debug builds.
+def optimizeApkSize = project.hasProperty('optimizeApkSize') && project.property('optimizeApkSize') == 'true'
+
+android {
+    // Namespace (required for AGP 8.0+)
+    namespace 'com.chip.casting'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.chip.casting"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                targets "default"
+            }
+        }
+        // NDK configuration for APK packaging
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            if (optimizeApkSize) {
+                // Size-optimized debug: enable R8 to remove unused Java/Kotlin code
+                minifyEnabled true
+                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                // Do NOT add doNotStrip — let the build system strip .so files
+            } else {
+                // Normal debug: keep everything for debugging
+                minifyEnabled false
+                packagingOptions {
+                    doNotStrip "**/*.so"
+                }
+            }
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+            includeAndroidResources = true
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs/jniLibs']
+            java.srcDirs = [
+                    'src/main/java',
+                    'src/main/jni',
+                    'src/compat/java',
+                    'src/compat/jni',
+            ]
+
+            // uncomment this code to debug
+//            java.srcDirs = [
+//                    'src/main/java',
+//                    '../../third_party/connectedhomeip/src/setup_payload/java/src',
+//                    '../../third_party/connectedhomeip/src/platform/android/java',
+//                    '../../third_party/connectedhomeip/src/app/server/java/src/',
+//                    '../../java/src',
+//            ]
+        }
+    }
+}
+
+dependencies {
+    if (optimizeApkSize) {
+        // When R8 is enabled, the compat source files (src/compat/jni) are compiled
+        // by Gradle AND also present in TvCastingApp.jar from the GN build.
+        // Exclude the JAR to avoid "defined multiple times" R8 errors; the Gradle-
+        // compiled classes are identical and sufficient.
+        implementation fileTree(dir: "libs", include: ["*.so"])
+        implementation fileTree(dir: "libs", include: ["*.jar"], exclude: ["TvCastingApp.jar"])
+        compileOnly files("libs/TvCastingApp.jar")
+    } else {
+        implementation fileTree(dir: "libs", include: ["*.so"])
+        implementation fileTree(dir: "libs", include: ["*.jar"], exclude: ["TvCastingApp.jar"])
+        compileOnly files("libs/TvCastingApp.jar")
+    }
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.+'
+    testImplementation 'org.robolectric:robolectric:4.11.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation 'com.google.zxing:core:3.3.0'
+}
